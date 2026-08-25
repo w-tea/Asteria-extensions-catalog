@@ -1,6 +1,6 @@
 # Asteria Extensions Catalog / Asteria 拡張カタログ
 
-このディレクトリは、公開カタログリポジトリ `w-tea/Asteria-extensions-catalog` を初期化するための正規雛形です。Asteria は次の GitHub raw URL から、`main` のカタログだけを取得します。
+このディレクトリは、公開カタログリポジトリ`w-tea/Asteria-extensions-catalog`の元になる雛形です。Asteriaは次のGitHub Raw URLから、`main`のカタログだけを取得します。
 
 ```text
 https://raw.githubusercontent.com/w-tea/Asteria-extensions-catalog/main/catalog-v1.json
@@ -10,14 +10,14 @@ https://raw.githubusercontent.com/w-tea/Asteria-extensions-catalog/main/catalog-
 
 ### このリポジトリが扱うもの
 
-カタログには、Asteria 拡張機能の名前、対応バージョン、宣言 capability、配布 ZIP の URL、SHA-256、サイズといった**メタデータ**だけを登録します。ZIP 本体は作者が管理する credential-free HTTPS の公開配布先に置きます。通常はタグ付きの GitHub Release asset を使うと、配布元と版の対応を確認しやすくなります。
+カタログには、Asteria拡張機能の名前、対応バージョン、要求する権限、配布ZIPのURL、SHA-256、サイズといった**メタデータ**だけを登録します。ZIP本体は、認証情報なしでアクセスできるHTTPSの公開先に置きます。通常はバージョンタグを付けてGitHub Releasesへ公開すると、配布元とバージョンの対応を確認しやすくなります。
 
 Asteria に公開されるのは、レビューを経て `main` にマージ済みの内容だけです。fork、作業ブランチ、Pull Request の途中の内容は配信されません。`main` の保護設定と `.github/CODEOWNERS` により、掲載は `@w-tea` の明示的な確認を前提にします。
 
 ### 掲載を申請する手順
 
-1. 拡張機能の公開リポジトリを用意し、差し替えない不変（immutable）の ZIP を HTTPS の release asset として公開します。
-2. その ZIP に対して lowercase の SHA-256 と正確な byte size を計算します。Windows PowerShell では、たとえば次で確認できます。
+1. 拡張機能の公開リポジトリを用意し、バージョンごとに新しいZIPをGitHub ReleasesなどのHTTPS配布先へ公開します。公開後は、同じURLのファイルを差し替えないでください。
+2. そのZIPのSHA-256を英小文字で表記し、正確なサイズを計算します。Windows PowerShellでは、たとえば次で確認できます。
 
    ```powershell
    (Get-FileHash -Algorithm SHA256 .\extension.zip).Hash.ToLower()
@@ -25,12 +25,12 @@ Asteria に公開されるのは、レビューを経て `main` にマージ済�
    ```
 
 3. このカタログリポジトリをフォークし、自分の作業ブランチを作ります。
-4. `catalog-v1.json` に entry を追加します。すでに同じ ID がある場合は、過去版を増やさず**現行 entry を一つだけ**更新してください。ID は大文字・小文字を区別せず並べ替えます。
-5. `asteria.minimum` と `asteria.maximum_exclusive` には、実際に確認した対応範囲を記入します。`capabilities` には `network`、`filesystem`、`subprocess` のうち要求するものを正確に申告します。
+4. `catalog-v1.json`に掲載内容を追加します。すでに同じIDがある場合は、過去版を増やさず**現行の掲載内容を一つだけ**更新してください。IDは大文字・小文字を区別せず並べ替えます。
+5. `asteria.minimum`と`asteria.maximum_exclusive`には、実際に確認した対応範囲を記入します。`capabilities`には、`network`、`filesystem`、`subprocess`のうち要求する権限を正確に記載します。
 6. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
 7. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。
 
-JSON Schema、ID の重複・並び順、HTTPS URL、互換性範囲、SHA-256、サイズは自動検証されます。ただし metadata validation は拡張機能コードのセキュリティ監査ではありません。掲載は、安全性、品質、動作保証、継続提供を保証するものでもありません。利用者と管理者は、導入前にソース、リリースの出所、ライセンス、宣言 capability を独自に確認してください。
+JSON Schema、IDの重複・並び順、HTTPS URL、互換性の範囲、SHA-256、サイズは自動で検証されます。ただし、この検証は拡張機能コードのセキュリティ監査ではありません。掲載されていることも、安全性、品質、動作、継続的な提供を保証するものではありません。利用者と管理者は、導入前にソース、リリースの出所、ライセンス、拡張機能が要求する権限を確認してください。
 
 ### ローカル検証
 
@@ -39,7 +39,7 @@ npm ci
 npm run validate
 ```
 
-`schemas/extension-catalog-v1.schema.json` は Asteria リポジトリの正規スキーマを byte-for-byte で複製したものです。似た別スキーマを追加したり、このコピーだけを手で変更したりしないでください。
+`schemas/extension-catalog-v1.schema.json`は、Asteriaリポジトリの正規スキーマを一バイト単位で複製したものです。似た別スキーマを追加したり、このコピーだけを手で変更したりしないでください。
 
 ## English
 
