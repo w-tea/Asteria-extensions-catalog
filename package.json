@@ -1,0 +1,13 @@
+{
+  "name": "asteria-extensions-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-catalog.mjs catalog-v1.json schemas/extension-catalog-v1.schema.json"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

@@ -1,0 +1,71 @@
+# Asteria Extensions Catalog / Asteria 拡張カタログ
+
+このディレクトリは、公開カタログリポジトリ `w-tea/Asteria-extensions-catalog` を初期化するための正規雛形です。Asteria は次の GitHub raw URL から、`main` のカタログだけを取得します。
+
+```text
+https://raw.githubusercontent.com/w-tea/Asteria-extensions-catalog/main/catalog-v1.json
+```
+
+## 日本語
+
+### このリポジトリが扱うもの
+
+カタログには、Asteria 拡張機能の名前、対応バージョン、宣言 capability、配布 ZIP の URL、SHA-256、サイズといった**メタデータ**だけを登録します。ZIP 本体は作者が管理する credential-free HTTPS の公開配布先に置きます。通常はタグ付きの GitHub Release asset を使うと、配布元と版の対応を確認しやすくなります。
+
+Asteria に公開されるのは、レビューを経て `main` にマージ済みの内容だけです。fork、作業ブランチ、Pull Request の途中の内容は配信されません。`main` の保護設定と `.github/CODEOWNERS` により、掲載は `@w-tea` の明示的な確認を前提にします。
+
+### 掲載を申請する手順
+
+1. 拡張機能の公開リポジトリを用意し、差し替えない不変（immutable）の ZIP を HTTPS の release asset として公開します。
+2. その ZIP に対して lowercase の SHA-256 と正確な byte size を計算します。Windows PowerShell では、たとえば次で確認できます。
+
+   ```powershell
+   (Get-FileHash -Algorithm SHA256 .\extension.zip).Hash.ToLower()
+   (Get-Item .\extension.zip).Length
+   ```
+
+3. このカタログリポジトリをフォークし、自分の作業ブランチを作ります。
+4. `catalog-v1.json` に entry を追加します。すでに同じ ID がある場合は、過去版を増やさず**現行 entry を一つだけ**更新してください。ID は大文字・小文字を区別せず並べ替えます。
+5. `asteria.minimum` と `asteria.maximum_exclusive` には、実際に確認した対応範囲を記入します。`capabilities` には `network`、`filesystem`、`subprocess` のうち要求するものを正確に申告します。
+6. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
+7. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。
+
+JSON Schema、ID の重複・並び順、HTTPS URL、互換性範囲、SHA-256、サイズは自動検証されます。ただし metadata validation は拡張機能コードのセキュリティ監査ではありません。掲載は、安全性、品質、動作保証、継続提供を保証するものでもありません。利用者と管理者は、導入前にソース、リリースの出所、ライセンス、宣言 capability を独自に確認してください。
+
+### ローカル検証
+
+```bash
+npm ci
+npm run validate
+```
+
+`schemas/extension-catalog-v1.schema.json` は Asteria リポジトリの正規スキーマを byte-for-byte で複製したものです。似た別スキーマを追加したり、このコピーだけを手で変更したりしないでください。
+
+## English
+
+### What this repository contains
+
+This directory is the canonical bootstrap template for the public `w-tea/Asteria-extensions-catalog` repository. Asteria fetches only the catalog at the raw GitHub endpoint shown above. Extension archives stay at each author's credential-free HTTPS release location; a tagged GitHub Release asset is the normal choice because its provenance and version are easy to inspect.
+
+Only merged `main` is published to Asteria. Forks, topic branches, and open Pull Requests are never catalog delivery sources. Protected-branch rules and `.github/CODEOWNERS` require `@w-tea` review before a listing can become public.
+
+### How to submit a listing
+
+1. Publish an immutable ZIP for the extension at a credential-free HTTPS release URL.
+2. Compute the ZIP's lowercase SHA-256 and exact `size_bytes`.
+3. Fork this catalog repository and create a topic branch.
+4. Add the entry to `catalog-v1.json`, or update the one current entry for that ID. Do not add a second historical entry for the same ID. Keep IDs sorted case-insensitively.
+5. Declare the tested Asteria range and every required `network`, `filesystem`, or `subprocess` capability.
+6. Run `npm ci` and then `npm run validate` in this directory.
+7. Open a Pull Request against `main` and complete every item in the PR template.
+
+Validation checks metadata shape, ordering, URLs, compatibility ranges, SHA-256, and size. Metadata validation is not a security audit of extension code, and listing is not a guarantee of safety, quality, compatibility, or continued availability. Review source, release provenance, license, and declared capabilities before installation.
+
+### Local validation
+
+```bash
+npm ci
+npm run validate
+```
+
+`schemas/extension-catalog-v1.schema.json` must remain a byte-for-byte copy of Asteria's canonical schema. Do not hand-edit this copy or add a parallel schema.
