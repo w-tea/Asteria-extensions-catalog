@@ -63,6 +63,66 @@ function checkUrl(value, path) {
   }
 }
 
+function checkNetworkHostPermissions(value, path) {
+  if (!Array.isArray(value)) return;
+  const normalized = new Set();
+  for (const [index, item] of value.entries()) {
+    const itemPath = `${path}[${index}]`;
+    const match = typeof item === 'string' && item.match(/^https:\/\/([^/?#]+)$/);
+    if (!match || item.includes('*')) {
+      errors.push(`${itemPath} must be an exact public HTTPS origin`);
+      continue;
+    }
+    let parsed;
+    try { parsed = new URL(item); }
+    catch {
+      errors.push(`${itemPath} must be an exact public HTTPS origin`);
+      continue;
+    }
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
+      errors.push(`${itemPath} must be an exact public HTTPS origin`);
+      continue;
+    }
+    const authority = match[1];
+    let hostname = authority;
+    let explicitPort = null;
+    const colon = authority.lastIndexOf(':');
+    if (colon >= 0) {
+      if (authority.indexOf(':') !== colon) {
+        errors.push(`${itemPath} must use a public DNS hostname`);
+        continue;
+      }
+      const portText = authority.slice(colon + 1);
+      hostname = authority.slice(0, colon);
+      if (portText) {
+        explicitPort = Number(portText);
+        if (!/^\d+$/.test(portText) || !Number.isInteger(explicitPort) || explicitPort < 1 || explicitPort > 65535) {
+          errors.push(`${itemPath} has an invalid port`);
+          continue;
+        }
+      }
+    }
+    const labels = hostname.split('.');
+    const isIpv4 = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+    if (
+      !hostname
+      || hostname.toLowerCase() === 'localhost'
+      || hostname.includes(':')
+      || hostname.includes('[')
+      || hostname.includes(']')
+      || isIpv4
+      || labels.length < 2
+      || !labels.every((label) => /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/.test(label))
+    ) {
+      errors.push(`${itemPath} must use a public DNS hostname`);
+      continue;
+    }
+    const canonical = `https://${hostname.toLowerCase()}${explicitPort === null ? '' : `:${explicitPort}`}`;
+    if (normalized.has(canonical)) errors.push(`${path} contains a duplicate origin`);
+    normalized.add(canonical);
+  }
+}
+
 if (schema) {
   if (schema.$id !== 'asteria.extension.catalog.v1' || schema.properties?.entries?.type !== 'array') errors.push('schema is not the catalog v1 schema');
   if (createHash('sha256').update(normalizedSchemaBytes(schemaPath)).digest('hex') !== canonicalSchemaDigest) errors.push('schema is not the canonical catalog v1 schema copy');
@@ -96,6 +156,7 @@ if (catalog) {
       const standardPermissionCount = (permissions.asteria?.length ?? 0)
         + (permissions.network_hosts?.length ?? 0)
         + (permissions.localhost?.length ?? 0);
+      checkNetworkHostPermissions(permissions.network_hosts, `${path}.permissions.network_hosts`);
       if (entry.execution_level === 'standard' && (entry.capabilities?.length ?? 0)) {
         errors.push(`${path} standard extensions must not declare Full-access capabilities`);
       }
