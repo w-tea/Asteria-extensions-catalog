@@ -27,7 +27,7 @@ Asteria に公開されるのは、レビューを経て `main` にマージ済�
 3. このカタログリポジトリをフォークし、自分の作業ブランチを作ります。
 4. `catalog-v1.json`に掲載内容を追加します。すでに同じIDがある場合は、過去版を増やさず**現行の掲載内容を一つだけ**更新してください。IDは大文字・小文字を区別せず並べ替えます。
 5. `asteria.minimum`と`asteria.maximum_exclusive`には、実際に確認した対応範囲を記入します。
-6. `execution_level`と`permissions`は必ず記入します。標準拡張では`execution_level`を`standard`にして、`prompt.read`、接続先のHTTPSオリジン、ローカル接続先のうち必要な権限だけを`permissions`へ記載します。`capabilities`は空にしてください。
+6. `execution_level`と`permissions`は必ず記入します。標準拡張では`execution_level`を`standard`にして、`prompt.read`、接続先のHTTPSオリジン、ローカル接続先のうち必要な権限だけを`permissions`へ記載します。HTTPSオリジンのホスト名は小文字にし、既定のポート`443`は省略してください。`capabilities`は空にします。
 7. フルアクセス拡張では`execution_level`を`full_access`にして、`permissions`を空にします。`network`、`filesystem`、`subprocess`のうち必要な機能は`capabilities`へ記載してください。
 8. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
 9. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。

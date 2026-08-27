@@ -9,7 +9,7 @@
 - [ ] **License / ライセンス:** 配布物に適用されるライセンスと、その全文または公式説明への URL を記入しました。
 - [ ] **Asteria compatibility / Asteria 互換性:** `asteria.minimum` と `asteria.maximum_exclusive` が、この ZIP を実際に動作確認した範囲を表しています。
 - [ ] **Execution level / 実行方式:** `execution_level`に`standard`または`full_access`を明記しました。
-- [ ] **Standard permissions / 標準拡張の権限:** 標準拡張では、必要な`prompt.read`、HTTPSオリジン、ローカル接続先だけを`permissions`に記載し、`capabilities`を空にしました。フルアクセス拡張では`permissions`を空にしました。
+- [ ] **Standard permissions / 標準拡張の権限:** 標準拡張では、必要な`prompt.read`、HTTPSオリジン、ローカル接続先だけを`permissions`に記載し、`capabilities`を空にしました。HTTPSオリジンのホスト名は小文字にし、既定のポート`443`は省略しました。フルアクセス拡張では`permissions`を空にしました。
 - [ ] **Full-access capabilities / フルアクセス拡張の機能:** フルアクセス拡張では、`network`、`filesystem`、`subprocess`のうち必要なものを`capabilities`に記載しました。標準拡張では追加していません。
 - [ ] **Archive identity / 配布物の同一性:** 公開したZIPから計算した英小文字表記の **SHA-256** と正確な **size_bytes** を記入しました。
 - [ ] **One current entry / IDごとの掲載内容:** 同じIDの古い掲載内容を追加せず、既存の掲載内容がある場合は更新しました。
