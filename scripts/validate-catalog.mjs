@@ -117,7 +117,12 @@ function checkNetworkHostPermissions(value, path) {
       errors.push(`${itemPath} must use a public DNS hostname`);
       continue;
     }
-    const canonical = `https://${hostname.toLowerCase()}${explicitPort === null ? '' : `:${explicitPort}`}`;
+    const canonicalPort = explicitPort === 443 ? null : explicitPort;
+    const canonical = `https://${hostname.toLowerCase()}${canonicalPort === null ? '' : `:${canonicalPort}`}`;
+    if (item !== canonical) {
+      errors.push(`${itemPath} must use a lowercase hostname and omit the default HTTPS port`);
+      continue;
+    }
     if (normalized.has(canonical)) errors.push(`${path} contains a duplicate origin`);
     normalized.add(canonical);
   }
