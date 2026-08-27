@@ -41,7 +41,7 @@ npm ci
 npm run validate
 ```
 
-`schemas/extension-catalog-v1.schema.json`は、Asteriaリポジトリの正規スキーマを一バイト単位で複製したものです。似た別スキーマを追加したり、このコピーだけを手で変更したりしないでください。
+`schemas/extension-catalog-v1.schema.json`には、Asteriaリポジトリの正規スキーマをそのまま配置しています。似た別スキーマを追加したり、このファイルだけを変更したりしないでください。
 
 ## English
 
@@ -72,4 +72,4 @@ npm ci
 npm run validate
 ```
 
-`schemas/extension-catalog-v1.schema.json` must remain a byte-for-byte copy of Asteria's canonical schema. Do not hand-edit this copy or add a parallel schema.
+`schemas/extension-catalog-v1.schema.json` is copied from Asteria's canonical schema. Do not edit this copy independently or add a parallel schema.

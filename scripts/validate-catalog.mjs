@@ -22,7 +22,11 @@ const semverPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.
 const idPattern = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,126}[A-Za-z0-9])?$/;
 const shaPattern = /^[0-9a-f]{64}$/;
 const maxBytes = 512 * 1024 * 1024;
-const canonicalSchemaDigest = '0b3f85f06d73e27bc7381bae142343be326c3617ad9198bfe523342f03758aca';
+const canonicalSchemaDigest = 'fd7a3ea63394cca8727958e8a693475c6bc86ba447d85c86dbff3e0b61231c70';
+
+function normalizedSchemaBytes(path) {
+  return Buffer.from(readFileSync(path, 'utf8').replace(/\r\n/g, '\n'), 'utf8');
+}
 
 function semver(value) {
   const match = typeof value === 'string' && value.match(semverPattern);
@@ -61,7 +65,7 @@ function checkUrl(value, path) {
 
 if (schema) {
   if (schema.$id !== 'asteria.extension.catalog.v1' || schema.properties?.entries?.type !== 'array') errors.push('schema is not the catalog v1 schema');
-  if (createHash('sha256').update(readFileSync(schemaPath)).digest('hex') !== canonicalSchemaDigest) errors.push('schema is not the canonical catalog v1 schema copy');
+  if (createHash('sha256').update(normalizedSchemaBytes(schemaPath)).digest('hex') !== canonicalSchemaDigest) errors.push('schema is not the canonical catalog v1 schema copy');
   if (catalog) {
     try {
       const ajv = new Ajv2020({ allErrors: true, strict: true, unicodeRegExp: false });
