@@ -113,7 +113,6 @@
           "$ref": "#/$defs/ExtensionCatalogCompatibility"
         },
         "execution_level": {
-          "default": "full_access",
           "enum": [
             "standard",
             "full_access"
@@ -176,6 +175,8 @@
         "summary",
         "version",
         "asteria",
+        "execution_level",
+        "permissions",
         "capabilities",
         "author",
         "license",
@@ -184,7 +185,62 @@
         "source"
       ],
       "title": "ExtensionCatalogEntry",
-      "type": "object"
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "execution_level": {
+                "const": "standard"
+              }
+            },
+            "required": [
+              "execution_level"
+            ]
+          },
+          "then": {
+            "properties": {
+              "capabilities": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "execution_level": {
+                "const": "full_access"
+              }
+            },
+            "required": [
+              "execution_level"
+            ]
+          },
+          "then": {
+            "properties": {
+              "permissions": {
+                "type": "object",
+                "properties": {
+                  "asteria": {
+                    "type": "array",
+                    "maxItems": 0
+                  },
+                  "network_hosts": {
+                    "type": "array",
+                    "maxItems": 0
+                  },
+                  "localhost": {
+                    "type": "array",
+                    "maxItems": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "ExtensionCatalogLicense": {
       "additionalProperties": false,
