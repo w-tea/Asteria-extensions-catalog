@@ -23,6 +23,9 @@ const idPattern = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,126}[A-Za-z0-9])?$/;
 const shaPattern = /^[0-9a-f]{64}$/;
 const maxBytes = 512 * 1024 * 1024;
 const canonicalSchemaDigest = '1047ccdba7ad52250f0e705efce94c6f80b3ddcd263294a061297b5f09e89929';
+const pullRequestAuthorAssociation = String(
+  process.env.ASTERIA_CATALOG_PR_AUTHOR_ASSOCIATION ?? '',
+).trim().toUpperCase();
 
 function normalizedSchemaBytes(path) {
   return Buffer.from(readFileSync(path, 'utf8').replace(/\r\n/g, '\n'), 'utf8');
@@ -60,6 +63,36 @@ function checkUrl(value, path) {
   else {
     try { if (new URL(value).username || new URL(value).password) errors.push(`${path} must not contain credentials`); }
     catch { errors.push(`${path} must be a valid URL`); }
+  }
+}
+
+function checkTrimmedText(value, path) {
+  if (typeof value === 'string' && value !== value.trim()) {
+    errors.push(`${path} must not have surrounding whitespace`);
+  }
+}
+
+function checkSource(source, path) {
+  checkUrl(source?.url, `${path}.url`);
+  if (typeof source?.url !== 'string') return;
+  let parsed;
+  try { parsed = new URL(source.url); }
+  catch { return; }
+  if (!parsed.pathname.toLowerCase().endsWith('.zip')) {
+    errors.push(`${path}.url must be a direct ZIP URL`);
+  }
+  if (source.kind === 'github_release_zip') {
+    const parts = parsed.pathname.split('/').filter(Boolean);
+    if (
+      parsed.hostname !== 'github.com'
+      || parsed.search
+      || parsed.hash
+      || parts.length !== 6
+      || parts[2] !== 'releases'
+      || parts[3] !== 'download'
+    ) {
+      errors.push(`${path}.url must be a direct github.com release ZIP URL`);
+    }
   }
 }
 
@@ -154,6 +187,10 @@ if (catalog) {
       if (!entry || typeof entry !== 'object') { errors.push(`${path} must be an object`); continue; }
       if (!idPattern.test(entry.id ?? '')) errors.push(`${path}.id is invalid`);
       for (const key of ['name', 'summary', 'version']) if (typeof entry[key] !== 'string' || !entry[key].length) errors.push(`${path}.${key} is required`);
+      checkTrimmedText(entry.name, `${path}.name`);
+      checkTrimmedText(entry.summary, `${path}.summary`);
+      checkTrimmedText(entry.author?.name, `${path}.author.name`);
+      checkTrimmedText(entry.license?.id, `${path}.license.id`);
       if (!semver(entry.version)) errors.push(`${path}.version is not semantic version`);
       if (!Object.hasOwn(entry, 'execution_level')) errors.push(`${path}.execution_level is required`);
       if (!Object.hasOwn(entry, 'permissions')) errors.push(`${path}.permissions is required`);
@@ -173,7 +210,21 @@ if (catalog) {
       checkUrl(entry.homepage, `${path}.homepage`);
       if (entry.author?.url != null) checkUrl(entry.author.url, `${path}.author.url`);
       checkUrl(entry.license?.url, `${path}.license.url`);
-      checkUrl(entry.source?.url, `${path}.source.url`);
+      checkSource(entry.source, `${path}.source`);
+      const screenshots = entry.assets?.screenshots;
+      if (
+        Array.isArray(screenshots)
+        && new Set(screenshots.map((item) => String(item).toLowerCase())).size !== screenshots.length
+      ) {
+        errors.push(`${path}.assets.screenshots must be unique case-insensitively`);
+      }
+      if (
+        entry.review_status === 'official'
+        && pullRequestAuthorAssociation
+        && pullRequestAuthorAssociation !== 'OWNER'
+      ) {
+        errors.push(`${path}.review_status official is reserved for the repository owner`);
+      }
       if (!shaPattern.test(entry.source?.sha256 ?? '')) errors.push(`${path}.source.sha256 must be lowercase SHA-256`);
       if (!Number.isInteger(entry.source?.size_bytes) || entry.source.size_bytes <= 0 || entry.source.size_bytes > maxBytes) errors.push(`${path}.source.size_bytes must be 1..536870912`);
     }

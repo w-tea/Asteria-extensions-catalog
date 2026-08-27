@@ -16,7 +16,7 @@ Asteria に公開されるのは、レビューを経て `main` にマージ済�
 
 ### 掲載を申請する手順
 
-1. 拡張機能の公開リポジトリを用意し、バージョンごとに新しいZIPをGitHub ReleasesなどのHTTPS配布先へ公開します。公開後は、同じURLのファイルを差し替えないでください。
+1. 拡張機能の公開リポジトリを用意し、バージョンごとに新しいZIPをGitHub ReleasesなどのHTTPS配布先へ公開します。`source.url`にはZIPを直接ダウンロードできるURLを記載します。`github_release_zip`を選ぶ場合は、GitHub Releaseの画面ではなく、`https://github.com/<作者>/<リポジトリ>/releases/download/<タグ>/<ファイル>.zip`形式の配布ファイルURLが必要です。公開後は、同じURLのファイルを差し替えないでください。
 2. そのZIPのSHA-256を英小文字で表記し、正確なサイズを計算します。Windows PowerShellでは、たとえば次で確認できます。
 
    ```powershell
@@ -29,8 +29,10 @@ Asteria に公開されるのは、レビューを経て `main` にマージ済�
 5. `asteria.minimum`と`asteria.maximum_exclusive`には、実際に確認した対応範囲を記入します。
 6. `execution_level`と`permissions`は必ず記入します。標準拡張では`execution_level`を`standard`にして、`prompt.read`、接続先のHTTPSオリジン、ローカル接続先のうち必要な権限だけを`permissions`へ記載します。HTTPSオリジンのホスト名は小文字にし、既定のポート`443`は省略してください。`capabilities`は空にします。
 7. フルアクセス拡張では`execution_level`を`full_access`にして、`permissions`を空にします。`network`、`filesystem`、`subprocess`のうち必要な機能は`capabilities`へ記載してください。
-8. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
-9. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。
+8. 外部の作者が申請する場合は、`review_status`を`community`または`unverified`にします。`official`はリポジトリ管理者が必要に応じて設定します。
+9. 名前や説明などの文字列には、先頭や末尾に不要な空白を入れないでください。スクリーンショットのパスは、大文字・小文字だけが異なる重複も登録できません。
+10. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
+11. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。
 
 JSON Schema、IDの重複・並び順、HTTPS URL、互換性の範囲、SHA-256、サイズは自動で検証されます。ただし、この検証は拡張機能コードのセキュリティ監査ではありません。掲載されていることも、安全性、品質、動作、継続的な提供を保証するものではありません。利用者と管理者は、導入前にソース、リリースの出所、ライセンス、拡張機能が要求する権限を確認してください。
 
@@ -53,15 +55,17 @@ Only merged `main` is published to Asteria. Forks, topic branches, and open Pull
 
 ### How to submit a listing
 
-1. Publish an immutable ZIP for the extension at a credential-free HTTPS release URL.
+1. Publish a new ZIP for each extension version at a credential-free HTTPS release URL. Put a direct ZIP download URL in `source.url`, and do not replace a file after publishing it at that URL. `github_release_zip` requires a GitHub Release asset URL in the form `https://github.com/<owner>/<repository>/releases/download/<tag>/<file>.zip`, not a release page URL.
 2. Compute the ZIP's lowercase SHA-256 and exact `size_bytes`.
 3. Fork this catalog repository and create a topic branch.
 4. Add the entry to `catalog-v1.json`, or update the one current entry for that ID. Do not add a second historical entry for the same ID. Keep IDs sorted case-insensitively.
 5. Declare the tested Asteria compatibility range.
 6. Always declare `execution_level` and `permissions`. Standard extensions use `standard`, list only the required `prompt.read`, HTTPS-origin, and localhost permissions, and leave `capabilities` empty.
 7. Full-access extensions use `full_access`, leave `permissions` empty, and declare every required `network`, `filesystem`, or `subprocess` capability.
-8. Run `npm ci` and then `npm run validate` in this directory.
-9. Open a Pull Request against `main` and complete every item in the PR template.
+8. External submitters use `community` or `unverified` for `review_status`. The repository owner assigns `official` when appropriate.
+9. Do not add surrounding whitespace to text fields. Screenshot paths must also be unique when compared case-insensitively.
+10. Run `npm ci` and then `npm run validate` in this directory.
+11. Open a Pull Request against `main` and complete every item in the PR template.
 
 Validation checks metadata shape, ordering, URLs, compatibility ranges, SHA-256, and size. Metadata validation is not a security audit of extension code, and listing is not a guarantee of safety, quality, compatibility, or continued availability. Review source, release provenance, license, and declared capabilities before installation.
 

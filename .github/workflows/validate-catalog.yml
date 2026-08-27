@@ -14,4 +14,6 @@ jobs:
       - name: Install validator dependencies
         run: npm ci
       - name: Validate schema and catalog policy
+        env:
+          ASTERIA_CATALOG_PR_AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
         run: npm run validate
