@@ -1,4 +1,32 @@
 {
   "schema_version": "asteria.extension.catalog.v1",
-  "entries": []
+  "entries": [
+    {
+      "id": "com.w-tea.asteria-prompt-check",
+      "name": "Asteria Prompt Check",
+      "summary": "Generateに入力した通常プロンプトとネガティブプロンプトを確認し、括弧や重み記法などの基本的な誤りを表示します。",
+      "version": "1.0.0",
+      "asteria": {
+        "minimum": "1.2.0",
+        "maximum_exclusive": "2.0.0"
+      },
+      "capabilities": [],
+      "author": {
+        "name": "w-tea",
+        "url": "https://github.com/w-tea"
+      },
+      "license": {
+        "id": "MIT",
+        "url": "https://github.com/w-tea/Asteria-Prompt-Check/blob/v1.0.0/LICENSE"
+      },
+      "homepage": "https://github.com/w-tea/Asteria-Prompt-Check",
+      "review_status": "official",
+      "source": {
+        "kind": "github_release_zip",
+        "url": "https://github.com/w-tea/Asteria-Prompt-Check/releases/download/v1.0.0/com.w-tea.asteria-prompt-check-1.0.0.zip",
+        "sha256": "29a422f12b8b6c8115edf10096143f44d57c5de526f60f0aec7e6e1c63f8bfa2",
+        "size_bytes": 11661
+      }
+    }
+  ]
 }
