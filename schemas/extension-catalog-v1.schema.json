@@ -1,28 +1,6 @@
 {
   "$id": "asteria.extension.catalog.v1",
   "$defs": {
-    "ExtensionCatalogCompatibility": {
-      "$comment": "Semantic validation requires maximum_exclusive to be greater than minimum; Asteria runtime validation enforces this rule in addition to JSON Schema.",
-      "additionalProperties": false,
-      "properties": {
-        "minimum": {
-          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
-          "title": "Minimum",
-          "type": "string"
-        },
-        "maximum_exclusive": {
-          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
-          "title": "Maximum Exclusive",
-          "type": "string"
-        }
-      },
-      "required": [
-        "minimum",
-        "maximum_exclusive"
-      ],
-      "title": "ExtensionCatalogCompatibility",
-      "type": "object"
-    },
     "ExtensionCatalogAssets": {
       "additionalProperties": false,
       "properties": {
@@ -84,6 +62,28 @@
       "title": "ExtensionCatalogAuthor",
       "type": "object"
     },
+    "ExtensionCatalogCompatibility": {
+      "$comment": "Semantic validation requires maximum_exclusive to be greater than minimum; Asteria runtime validation enforces this rule in addition to JSON Schema.",
+      "additionalProperties": false,
+      "properties": {
+        "minimum": {
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
+          "title": "Minimum",
+          "type": "string"
+        },
+        "maximum_exclusive": {
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
+          "title": "Maximum Exclusive",
+          "type": "string"
+        }
+      },
+      "required": [
+        "minimum",
+        "maximum_exclusive"
+      ],
+      "title": "ExtensionCatalogCompatibility",
+      "type": "object"
+    },
     "ExtensionCatalogEntry": {
       "additionalProperties": false,
       "properties": {
@@ -111,6 +111,18 @@
         },
         "asteria": {
           "$ref": "#/$defs/ExtensionCatalogCompatibility"
+        },
+        "execution_level": {
+          "default": "full_access",
+          "enum": [
+            "standard",
+            "full_access"
+          ],
+          "title": "Execution Level",
+          "type": "string"
+        },
+        "permissions": {
+          "$ref": "#/$defs/ExtensionStandardPermissions"
         },
         "capabilities": {
           "items": {
@@ -174,6 +186,30 @@
       "title": "ExtensionCatalogEntry",
       "type": "object"
     },
+    "ExtensionCatalogLicense": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "minLength": 1,
+          "pattern": "^https://(?![^/?#]*@)",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "url"
+      ],
+      "title": "ExtensionCatalogLicense",
+      "type": "object"
+    },
     "ExtensionCatalogSource": {
       "additionalProperties": false,
       "properties": {
@@ -213,28 +249,74 @@
       "title": "ExtensionCatalogSource",
       "type": "object"
     },
-    "ExtensionCatalogLicense": {
+    "ExtensionLocalhostPermission": {
       "additionalProperties": false,
       "properties": {
-        "id": {
-          "maxLength": 120,
-          "minLength": 1,
-          "title": "Id",
+        "host": {
+          "enum": [
+            "localhost",
+            "127.0.0.1",
+            "::1"
+          ],
+          "title": "Host",
           "type": "string"
         },
-        "url": {
-          "format": "uri",
-          "minLength": 1,
-          "pattern": "^https://(?![^/?#]*@)",
-          "title": "Url",
-          "type": "string"
+        "port": {
+          "maximum": 65535,
+          "minimum": 1,
+          "not": {
+            "enum": [
+              3000,
+              3001,
+              5173,
+              8000,
+              8188
+            ]
+          },
+          "title": "Port",
+          "type": "integer"
         }
       },
       "required": [
-        "id",
-        "url"
+        "host",
+        "port"
       ],
-      "title": "ExtensionCatalogLicense",
+      "title": "ExtensionLocalhostPermission",
+      "type": "object"
+    },
+    "ExtensionStandardPermissions": {
+      "additionalProperties": false,
+      "properties": {
+        "asteria": {
+          "default": [],
+          "items": {
+            "const": "prompt.read",
+            "type": "string"
+          },
+          "title": "Asteria",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "network_hosts": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Network Hosts",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "localhost": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExtensionLocalhostPermission"
+          },
+          "title": "Localhost",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "title": "ExtensionStandardPermissions",
       "type": "object"
     }
   },
