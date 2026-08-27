@@ -26,9 +26,11 @@ Asteria に公開されるのは、レビューを経て `main` にマージ済�
 
 3. このカタログリポジトリをフォークし、自分の作業ブランチを作ります。
 4. `catalog-v1.json`に掲載内容を追加します。すでに同じIDがある場合は、過去版を増やさず**現行の掲載内容を一つだけ**更新してください。IDは大文字・小文字を区別せず並べ替えます。
-5. `asteria.minimum`と`asteria.maximum_exclusive`には、実際に確認した対応範囲を記入します。`capabilities`には、`network`、`filesystem`、`subprocess`のうち要求する権限を正確に記載します。
-6. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
-7. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。
+5. `asteria.minimum`と`asteria.maximum_exclusive`には、実際に確認した対応範囲を記入します。
+6. `execution_level`と`permissions`は必ず記入します。標準拡張では`execution_level`を`standard`にして、`prompt.read`、接続先のHTTPSオリジン、ローカル接続先のうち必要な権限だけを`permissions`へ記載します。`capabilities`は空にしてください。
+7. フルアクセス拡張では`execution_level`を`full_access`にして、`permissions`を空にします。`network`、`filesystem`、`subprocess`のうち必要な機能は`capabilities`へ記載してください。
+8. このディレクトリで `npm ci`、続けて `npm run validate` を実行します。
+9. カタログリポジトリの `main` 宛てに Pull Request を開き、PR テンプレートの確認事項をすべて記入します。
 
 JSON Schema、IDの重複・並び順、HTTPS URL、互換性の範囲、SHA-256、サイズは自動で検証されます。ただし、この検証は拡張機能コードのセキュリティ監査ではありません。掲載されていることも、安全性、品質、動作、継続的な提供を保証するものではありません。利用者と管理者は、導入前にソース、リリースの出所、ライセンス、拡張機能が要求する権限を確認してください。
 
@@ -39,7 +41,7 @@ npm ci
 npm run validate
 ```
 
-`schemas/extension-catalog-v1.schema.json`は、Asteriaリポジトリの正規スキーマを一バイト単位で複製したものです。似た別スキーマを追加したり、このコピーだけを手で変更したりしないでください。
+`schemas/extension-catalog-v1.schema.json`には、Asteriaリポジトリの正規スキーマをそのまま配置しています。似た別スキーマを追加したり、このファイルだけを変更したりしないでください。
 
 ## English
 
@@ -55,9 +57,11 @@ Only merged `main` is published to Asteria. Forks, topic branches, and open Pull
 2. Compute the ZIP's lowercase SHA-256 and exact `size_bytes`.
 3. Fork this catalog repository and create a topic branch.
 4. Add the entry to `catalog-v1.json`, or update the one current entry for that ID. Do not add a second historical entry for the same ID. Keep IDs sorted case-insensitively.
-5. Declare the tested Asteria range and every required `network`, `filesystem`, or `subprocess` capability.
-6. Run `npm ci` and then `npm run validate` in this directory.
-7. Open a Pull Request against `main` and complete every item in the PR template.
+5. Declare the tested Asteria compatibility range.
+6. Always declare `execution_level` and `permissions`. Standard extensions use `standard`, list only the required `prompt.read`, HTTPS-origin, and localhost permissions, and leave `capabilities` empty.
+7. Full-access extensions use `full_access`, leave `permissions` empty, and declare every required `network`, `filesystem`, or `subprocess` capability.
+8. Run `npm ci` and then `npm run validate` in this directory.
+9. Open a Pull Request against `main` and complete every item in the PR template.
 
 Validation checks metadata shape, ordering, URLs, compatibility ranges, SHA-256, and size. Metadata validation is not a security audit of extension code, and listing is not a guarantee of safety, quality, compatibility, or continued availability. Review source, release provenance, license, and declared capabilities before installation.
 
@@ -68,4 +72,4 @@ npm ci
 npm run validate
 ```
 
-`schemas/extension-catalog-v1.schema.json` must remain a byte-for-byte copy of Asteria's canonical schema. Do not hand-edit this copy or add a parallel schema.
+`schemas/extension-catalog-v1.schema.json` is copied from Asteria's canonical schema. Do not edit this copy independently or add a parallel schema.

@@ -10,6 +10,14 @@
         "minimum": "1.2.0",
         "maximum_exclusive": "2.0.0"
       },
+      "execution_level": "standard",
+      "permissions": {
+        "asteria": [
+          "prompt.read"
+        ],
+        "network_hosts": [],
+        "localhost": []
+      },
       "capabilities": [],
       "author": {
         "name": "w-tea",

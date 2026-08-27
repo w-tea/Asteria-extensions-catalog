@@ -22,7 +22,11 @@ const semverPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.
 const idPattern = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,126}[A-Za-z0-9])?$/;
 const shaPattern = /^[0-9a-f]{64}$/;
 const maxBytes = 512 * 1024 * 1024;
-const canonicalSchemaDigest = '6a548ac16bbac9e4c8eed64f3e9f9f017232315256c4716cc7f79b763c435de5';
+const canonicalSchemaDigest = 'fd7a3ea63394cca8727958e8a693475c6bc86ba447d85c86dbff3e0b61231c70';
+
+function normalizedSchemaBytes(path) {
+  return Buffer.from(readFileSync(path, 'utf8').replace(/\r\n/g, '\n'), 'utf8');
+}
 
 function semver(value) {
   const match = typeof value === 'string' && value.match(semverPattern);
@@ -61,7 +65,7 @@ function checkUrl(value, path) {
 
 if (schema) {
   if (schema.$id !== 'asteria.extension.catalog.v1' || schema.properties?.entries?.type !== 'array') errors.push('schema is not the catalog v1 schema');
-  if (createHash('sha256').update(readFileSync(schemaPath)).digest('hex') !== canonicalSchemaDigest) errors.push('schema is not the canonical catalog v1 schema copy');
+  if (createHash('sha256').update(normalizedSchemaBytes(schemaPath)).digest('hex') !== canonicalSchemaDigest) errors.push('schema is not the canonical catalog v1 schema copy');
   if (catalog) {
     try {
       const ajv = new Ajv2020({ allErrors: true, strict: true, unicodeRegExp: false });
@@ -86,6 +90,18 @@ if (catalog) {
       if (!idPattern.test(entry.id ?? '')) errors.push(`${path}.id is invalid`);
       for (const key of ['name', 'summary', 'version']) if (typeof entry[key] !== 'string' || !entry[key].length) errors.push(`${path}.${key} is required`);
       if (!semver(entry.version)) errors.push(`${path}.version is not semantic version`);
+      if (!Object.hasOwn(entry, 'execution_level')) errors.push(`${path}.execution_level is required`);
+      if (!Object.hasOwn(entry, 'permissions')) errors.push(`${path}.permissions is required`);
+      const permissions = entry.permissions ?? { asteria: [], network_hosts: [], localhost: [] };
+      const standardPermissionCount = (permissions.asteria?.length ?? 0)
+        + (permissions.network_hosts?.length ?? 0)
+        + (permissions.localhost?.length ?? 0);
+      if (entry.execution_level === 'standard' && (entry.capabilities?.length ?? 0)) {
+        errors.push(`${path} standard extensions must not declare Full-access capabilities`);
+      }
+      if ((entry.execution_level ?? 'full_access') === 'full_access' && standardPermissionCount) {
+        errors.push(`${path} Full-access extensions must not declare Standard permissions`);
+      }
       const min = semver(entry.asteria?.minimum); const max = semver(entry.asteria?.maximum_exclusive);
       if (!min || !max || compareSemver(min, max) >= 0) errors.push(`${path}.asteria compatibility range is invalid`);
       checkUrl(entry.homepage, `${path}.homepage`);
