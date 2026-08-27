@@ -22,7 +22,7 @@ const semverPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.
 const idPattern = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,126}[A-Za-z0-9])?$/;
 const shaPattern = /^[0-9a-f]{64}$/;
 const maxBytes = 512 * 1024 * 1024;
-const canonicalSchemaDigest = 'fd7a3ea63394cca8727958e8a693475c6bc86ba447d85c86dbff3e0b61231c70';
+const canonicalSchemaDigest = '1047ccdba7ad52250f0e705efce94c6f80b3ddcd263294a061297b5f09e89929';
 
 function normalizedSchemaBytes(path) {
   return Buffer.from(readFileSync(path, 'utf8').replace(/\r\n/g, '\n'), 'utf8');
